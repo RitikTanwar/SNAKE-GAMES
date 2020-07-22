@@ -19,7 +19,6 @@ function init() {
     snake_img = new Image();
     snake_img.src = "snake.png";
 
-    Food = getRandomFood();
     snake = {
         init_len: 4,
         color: "blue",
@@ -67,6 +66,7 @@ function init() {
                 // this.cell.unshift({ x: X, y: Y + 1 });
                 Food = getRandomFood();
                 score++;
+                if (score % 10 == 0 && score != 0) score += 5;
 
             } else {
                 this.cell.pop();
@@ -81,8 +81,16 @@ function init() {
             if (this.cell[0].y < 0 || this.cell[0].x < 0 || this.cell[0].y > lastY || this.cell[0].x > lastX) {
                 game_over = true;
             }
+            let hdX = this.cell[0].x;
+            let hdY = this.cell[0].y;
+            for (let i = 1; i < this.cell.length; i++) {
+                if (hdX == this.cell[i].x && hdY == this.cell[i].y) {
+                    game_over = true;
+                }
+            }
         }
     }
+    Food = getRandomFood();
 
     snake.createSnake();
 
@@ -127,7 +135,8 @@ function draw() {
     pen.font = "40px Roboto";
     // pen.fillText(score, 30, 50);
     let scr = document.getElementById(`scores`);
-    scr.innerHTML = `${score}`;
+    if (score % 5 == 0 && score != 5 && score != 0) scr.innerHTML = `${score} + Bonus +5`;
+    else scr.innerHTML = `${score}`;
     colChange();
     // localStorage.getItem(`hscr`);
     // localStorage.setItem(`hscr`, highscore);
@@ -142,18 +151,39 @@ function draw() {
 // }
 
 function getRandomFood() {
-    let foodX = Math.round(Math.random() * (W - cs) / cs);
-    let foodY = Math.round(Math.random() * (H - cs) / cs);
-    food = {
-            x: foodX,
-            y: foodY,
-            color: "red",
-            // printFood: function() {
-            //     pen.fillStyle = this.color;
-            //     pen.fillRect(this.x * cs, this.y * cs, cs - 2, cs - 2);
-            // }
+    // let isable = 0;
+    // while (isable != 1) {
+    //     let foodX = Math.round(Math.random() * (W - cs) / cs);
+    //     let foodY = Math.round(Math.random() * (H - cs) / cs);
+    //     for (let i = 0; i < snake.cell.length; i++) {
+    //         if (foodX == snake.cell[i].x && foodY == snake.cell[i].y) {
+    //             isable = 0;
+    //             break;
+    //         } else isable = 1;
+    //     };
+    // }
+    food_position: while (true) {
+        var foodX = Math.round(Math.random() * (W - cs) / cs)
+        var foodY = Math.round(Math.random() * (H - cs) / cs)
+        let isable = 0
+        for (let i = 0; i < snake.cell.length; i++) {
+            if (foodX == snake.cell[i].x && foodY == snake.cell[i].y) {
+                isable = 1
+            }
         }
-        // food.printFood();
+        if (isable == 1) continue food_position;
+        break;
+    }
+    food = {
+        x: foodX,
+        y: foodY,
+        color: "red",
+        // printFood: function() {
+        //     pen.fillStyle = this.color;
+        //     pen.fillRect(this.x * cs, this.y * cs, cs - 2, cs - 2);
+        // }
+    }
+    // food.printFood();
     return food;
 }
 
@@ -165,7 +195,7 @@ function update() {
 function gameloop() {
     if (game_over == true) {
         clearInterval(f);
-        alert(`GAME OVER`);
+        alert(`GAME OVER !! Your Score is ${score}`);
         let playagain = document.getElementById('butt2');
         playagain.addEventListener('click', function() {
             location.reload();
